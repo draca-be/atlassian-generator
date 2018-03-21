@@ -28,52 +28,61 @@ def git(args, path=''):
     subprocess.run(['git'] + args, check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 
 
-def processversion(config, source, path):
-    logging.info("  -> {}".format(source['version']))
+def processversion(application, versioninfo, path):
+    logging.info("  -> {}".format(versioninfo['version']))
 
 
-def processapp(item):
-    logging.info("Processing {}".format(item['name']))
+def processapp(application):
+    logging.info("Processing {}".format(application['name']))
 
-    if 'repository' not in item:
+    if 'repository' not in application:
         logging.warning("No repository configured, skipping")
         return
 
-    m = re.match(r"[^/]*/(.*).git", item['repository'])
+    # Extract directory name from repository
+    m = re.match(r"[^/]*/(.*).git", application['repository'])
     path = os.path.join(args.workdir, m.group(1))
 
     if os.path.exists(path):
         logging.info("Repository checked out")
+
+        # Make sure we are in master
         git(['checkout', 'master'], path)
+
     else:
         logging.info("Cloning to {}".format(path))
-        git(['clone', item['repository'], path])
 
-    minimumversion = version.parse(item.get('minimumVersion', '0.0.1'))
-    maximumversion = version.parse(item.get('maximumVersion', '999.999.999'))
+        # Clone the repository
+        git(['clone', application['repository'], path])
 
-    for feed in item['feeds']:
+    minimumversion = version.parse(application.get('minimumVersion', '0.0.1'))
+    maximumversion = version.parse(application.get('maximumVersion', '999.999.999'))
+
+    for feed in application['feeds']:
+        # If we don't have a cached version, fetch the .json
         if feed not in feeds:
             with urllib.request.urlopen(feed) as url:
                 feeddata = url.read().decode()
                 feeds[feed] = json.loads(feeddata[10:-1])
 
+        # Use the cached version
         feeddata = feeds[feed]
 
-        for feeditem in feeddata:
-            itemversion = version.parse(feeditem['version'])
+        # Iterate all the versions
+        for versioninfo in feeddata:
+            itemversion = version.parse(versioninfo['version'])
 
-            if re.match(r".*TAR\.GZ Archive.*", feeditem['description']) \
-                    and feeditem['type'] == 'Binary' \
+            # Only pick the tarballs and filter out versions
+            if re.match(r".*TAR\.GZ Archive.*", versioninfo['description']) \
+                    and versioninfo['type'] == 'Binary' \
                     and maximumversion >= itemversion >= minimumversion:
-                processversion(item, feeditem, path)
+                # Process the app version
+                processversion(application, versioninfo, path)
 
 
 if __name__ == '__main__':
     with open(args.config, 'r') as stream:
         data = yaml.load(stream)
-
-        print(data)
 
         for item in data:
             processapp(item)
