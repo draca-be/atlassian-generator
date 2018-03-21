@@ -1,0 +1,11 @@
+# This configuration matches versions of the applications to templates
+
+- name: Jira Core (version 7.x)
+  repository: git@github.com:draca-be/atlassian-jira-core.git
+  feeds:
+  - https://my.atlassian.com/download/feeds/current/jira-core.json
+  - https://my.atlassian.com/download/feeds/archived/jira-core.json
+  minimumVersion: 7.0.0
+- name: Jira Software
+- name: Jira Service Desk
+- name: Confluence
