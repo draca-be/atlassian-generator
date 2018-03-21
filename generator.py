@@ -6,13 +6,21 @@ import re
 import subprocess
 import urllib.request
 import json
+import pygit2
 
 from packaging import version
 
-
 parser = argparse.ArgumentParser(description="Generate Atlassian based Dockerfiles")
 parser.add_argument("--config", help="a YaML file with configuration (default: atlassian.yml)", default="atlassian.yml")
-parser.add_argument("--workdir", help="Location where the script should operate (default: work subdirectory)", default=os.path.dirname(__file__) + "/work")
+parser.add_argument("--workdir",
+                    help="Location where the script should operate (default: work subdirectory)",
+                    default=os.path.dirname(__file__) + "/work")
+parser.add_argument("--sshagent",
+                    help="Use the SSH-agent for authentication. "
+                         "When False you need to provide the password to your private key. (default: True)",
+                    default=True)
+parser.add_argument("--sshpassword", help="Provide the password for your private key if not using the ssh-agent")
+
 args = parser.parse_args()
 
 logging.basicConfig(level=logging.INFO)
@@ -20,12 +28,13 @@ logging.basicConfig(level=logging.INFO)
 # Cache software feeds so we don't make multiple calls in one run
 feeds = {}
 
+# We only support key-based authentication
+if args.sshagent:
+    gitkeypair = pygit2.Keypair("git", None, None, "")
+else:
+    gitkeypair = pygit2.Keypair("git", "id_rsa.pub", "id_rsa", args.sshpassword)
 
-def git(args, path=''):
-    if path != '':
-        args = ['-C', path] + args
-
-    subprocess.run(['git'] + args, check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+gitcallbacks = pygit2.RemoteCallbacks(credentials=gitkeypair)
 
 
 def processversion(application, versioninfo, path):
@@ -43,17 +52,15 @@ def processapp(application):
     m = re.match(r"[^/]*/(.*).git", application['repository'])
     path = os.path.join(args.workdir, m.group(1))
 
-    if os.path.exists(path):
-        logging.info("Repository checked out")
-
-        # Make sure we are in master
-        git(['checkout', 'master'], path)
-
-    else:
+    if not os.path.exists(path):
         logging.info("Cloning to {}".format(path))
 
         # Clone the repository
-        git(['clone', application['repository'], path])
+        pygit2.clone_repository(application['repository'], path, callbacks=gitcallbacks)
+
+    logging.info("Switching to master branch")
+    repo = pygit2.Repository(path)
+    repo.checkout("refs/heads/master")
 
     minimumversion = version.parse(application.get('minimumVersion', '0.0.1'))
     maximumversion = version.parse(application.get('maximumVersion', '999.999.999'))
