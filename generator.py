@@ -139,12 +139,12 @@ def processversion(repo, application, versioninfo):
 
 def tagversion(repo, name, target):
     branch = "refs/heads/{}".format(name)
+    remotebranch = "refs/remotes/origin/{}".format(name)
     targetbranch = "refs/heads/{}".format(target)
-    remotebranch = "refs/remotes/origin/{}".format(target)
 
     branchref = repo.references.get(branch)
-    targetref = repo.references.get(targetbranch)
     remoteref = repo.references.get(remotebranch)
+    targetref = repo.references.get(targetbranch)
 
     if branchref and \
             targetref and \
@@ -157,7 +157,7 @@ def tagversion(repo, name, target):
         branchref = repo.create_reference(branch, targetref.resolve().target, force=True)
 
         # Only push if the remote reference is not the same as the local
-        if remoteref.resolve().target != branchref.resolve().target:
+        if remoteref == None or remoteref.resolve().target != branchref.resolve().target:
             logging.info("Pushing branch")
             repo.remotes['origin'].push(['+' + branch], callbacks=gitcallbacks)
 
