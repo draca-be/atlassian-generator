@@ -7,6 +7,8 @@ It does this by fetching the available versions from the Atlassian website so
 you can run it in a cron to have on-the-fly creation of new images as soon as
 a new version is available for download.
 
+You can find the generated images in [the Docker hub](https://hub.docker.com/u/draca/).
+
 ## Dependencies
 
 * libgit2-devel
