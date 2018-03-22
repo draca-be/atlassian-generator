@@ -5,7 +5,35 @@
   feeds:
   - https://my.atlassian.com/download/feeds/current/jira-core.json
   - https://my.atlassian.com/download/feeds/archived/jira-core.json
-  minimumVersion: 7.0.0
-- name: Jira Software
-- name: Jira Service Desk
+  minimumVersion: 7.7.0
+  template: jira-7.x
+  context:
+    title: Atlassian JIRA Core
+    appUrl: https://www.atlassian.com/software/jira/core
+    type: core
+    demoMinor: 7.8
+- name: Jira Software (version 7.x)
+  repository: git@github.com:draca-be/atlassian-jira-software.git
+  feeds:
+  - https://my.atlassian.com/download/feeds/current/jira-software.json
+  - https://my.atlassian.com/download/feeds/archived/jira-software.json
+  minimumVersion: 7.8.0
+  template: jira-7.x
+  context:
+    title: Atlassian JIRA Software
+    appUrl: https://www.atlassian.com/software/jira/software
+    type: core
+    demoMinor: 7.8
+- name: Jira Service Desk (version 3.x)
+  repository: git@github.com:draca-be/atlassian-jira-servicedesk.git
+  feeds:
+  - https://my.atlassian.com/download/feeds/current/jira-servicedesk.json
+  - https://my.atlassian.com/download/feeds/archived/jira-servicedesk.json
+  minimumVersion: 3.10.0
+  template: jira-7.x
+  context:
+    title: Atlassian JIRA Service Desk
+    appUrl: https://www.atlassian.com/software/jira/service-desk
+    type: servicedesk
+    demoMinor: 3.8
 - name: Confluence

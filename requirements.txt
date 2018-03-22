@@ -1,3 +1,4 @@
+jinja2
 pygit2
 packaging
 PyYAML
