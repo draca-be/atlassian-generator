@@ -211,11 +211,11 @@ def processapp(application):
                     latestversion = itemversion
 
                 major = "{}".format(itemversion.release[0])
-                if itemversion > latestmajor.get(major, minimumversion):
+                if itemversion >= latestmajor.get(major, minimumversion):
                     latestmajor[major] = itemversion
 
                 minor = "{}.{}".format(itemversion.release[0],  itemversion.release[1])
-                if itemversion > latestminor.get(minor, minimumversion):
+                if itemversion >= latestminor.get(minor, minimumversion):
                     latestminor[minor] = itemversion
 
     # Tag latest major and minor versions
