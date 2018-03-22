@@ -54,19 +54,26 @@ def processversion(repo, application, versioninfo):
     logging.info("  -> {}".format(versioninfo['version']))
 
     branch = "refs/heads/{}".format(versioninfo['version'])
+    remotebranch = "refs/remotes/origin/{}".format(versioninfo['version'])
 
     # Make sure we have a branch to work in
-    if not repo.branches.get(versioninfo['version']):
-        logging.info("     Creating branch")
+    if not repo.references.get(branch):
+        remoteref = repo.references.get(remotebranch)
+        if not remoteref:
+            logging.info("     Creating branch")
 
-        tree = repo.TreeBuilder().write()
-        repo.create_commit(branch,
-                           author,
-                           author,
-                           "New branch for {} {}".format(application['name'], versioninfo['version']),
-                           tree,
-                           []
-                           )
+            tree = repo.TreeBuilder().write()
+            repo.create_commit(branch,
+                               author,
+                               author,
+                               "New branch for {} {}".format(application['name'], versioninfo['version']),
+                               tree,
+                               []
+                               )
+        else:
+            logging.info("     Using remote branch")
+            repo.create_reference(branch, remoteref.resolve().target)
+
     logging.info("     Switching branch")
     repo.checkout(branch)
 
@@ -124,6 +131,7 @@ def processversion(repo, application, versioninfo):
         repo.index.write()
         tree = repo.index.write_tree()
         repo.create_commit(branch, author, author, "Update", tree, [repo.head.target])
+        logging.info("     Pushing branch")
         repo.remotes['origin'].push(['+' + branch], callbacks=gitcallbacks)
 
         break
@@ -146,8 +154,12 @@ def tagversion(repo, name, target):
     else:
         logging.info("Tagging {} as {}".format(target, name))
 
-        repo.create_reference(branch, targetref.resolve().target, force=True)
-        repo.remotes['origin'].push(['+' + branch], callbacks=gitcallbacks)
+        branchref = repo.create_reference(branch, targetref.resolve().target, force=True)
+
+        # Only push if the remote reference is not the same as the local
+        if remoteref.resolve().target != branchref.resolve().target:
+            logging.info("Pushing branch")
+            repo.remotes['origin'].push(['+' + branch], callbacks=gitcallbacks)
 
 
 def processapp(application):
