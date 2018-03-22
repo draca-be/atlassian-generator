@@ -132,16 +132,21 @@ def processversion(repo, application, versioninfo):
 def tagversion(repo, name, target):
     branch = "refs/heads/{}".format(name)
     targetbranch = "refs/heads/{}".format(target)
+    remotebranch = "refs/remotes/origin/{}".format(target)
 
     branchref = repo.references.get(branch)
     targetref = repo.references.get(targetbranch)
+    remoteref = repo.references.get(remotebranch)
 
-    if branchref and targetref and branchref.resolve().target == targetref.resolve().target:
+    if branchref and \
+            targetref and \
+            remoteref and \
+            branchref.resolve().target == targetref.resolve().target == remoteref.resolve().target:
         logging.info("{} already tagged as {}, skipping".format(target, name))
     else:
         logging.info("Tagging {} as {}".format(target, name))
 
-        repo.create_reference(branch, targetbranch, force=True)
+        repo.create_reference(branch, targetref.resolve().target, force=True)
         repo.remotes['origin'].push(['+' + branch], callbacks=gitcallbacks)
 
 
@@ -202,7 +207,7 @@ def processapp(application):
                     latestminor[minor] = itemversion
 
     # Tag latest major and minor versions
-    tagversion(repo, latestversion, "master")
+    tagversion(repo, "master", latestversion)
 
     for major, majorversion in latestmajor.items():
         tagversion(repo, major, majorversion)
