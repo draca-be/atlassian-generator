@@ -22,7 +22,7 @@
   context:
     title: Atlassian JIRA Software
     appUrl: https://www.atlassian.com/software/jira/software
-    type: core
+    type: software
     demoMinor: 7.8
 - name: Jira Service Desk (version 3.x)
   repository: git@github.com:draca-be/atlassian-jira-servicedesk.git
