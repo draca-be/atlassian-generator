@@ -37,3 +37,10 @@
     type: servicedesk
     demoMinor: 3.8
 - name: Confluence
+  repository: git@github.com:draca-be/atlassian-confluence.git
+  feeds:
+  - https://my.atlassian.com/download/feeds/current/confluence.json
+  - https://my.atlassian.com/download/feeds/archived/confluence.json
+  minimumVersion: 6.8.0
+  template: confluence-6.x
+

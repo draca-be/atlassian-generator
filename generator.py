@@ -95,7 +95,7 @@ def processversion(repo, application, versioninfo):
     )
 
     # Create the context from template and add version info
-    context = application['context']
+    context = application.get('context', {})
     context['version'] = versioninfo['version']
     context['url'] = versioninfo['zipUrl']
 
