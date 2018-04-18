@@ -37,7 +37,7 @@ if [ -n "${DISABLE_NOTIFICATIONS}" ]; then
     CONF_ARGS="-Datlassian.mail.senddisabled=true -Datlassian.mail.fetchdisabled=true -Datlassian.mail.popdisabled=true ${CONF_ARGS}"
 fi
 
-sed -i "s/-Xms[0-9]\+[kmg] -Xmx[0-9]\+[kmg]/-Xms${JVM_MINIMUM_MEMORY} -Xmx${JVM_MAXIMUM_MEMORY} ${CONF_ARGS}/g" ${SETENV}
+sed -i "s#-Xms[0-9]\+[kmg] -Xmx[0-9]\+[kmg]#-Xms${JVM_MINIMUM_MEMORY} -Xmx${JVM_MAXIMUM_MEMORY} ${CONF_ARGS}#g" ${SETENV}
 
 if [ "x${RUN_USER}" != "x$(stat -c %U ${CONF_HOME})" ]; then
     chown -R ${RUN_USER}:${RUN_GROUP} "${CONF_HOME}"
