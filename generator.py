@@ -30,6 +30,8 @@ parser.add_argument("--commitname",
 parser.add_argument("--commitemail",
                     help="Email of the commit author (default: mathy@draca.be)",
                     default="mathy@draca.be")
+parser.add_argument("templates", metavar="template", nargs="?",
+                    help="Specify the template to parse (default: all)")
 
 args = parser.parse_args()
 
@@ -233,5 +235,6 @@ if __name__ == '__main__':
         data = yaml.load(stream)
 
         for item in data:
-            processapp(item)
+            if not args.templates or item['template'] in args.templates:
+                processapp(item)
 
