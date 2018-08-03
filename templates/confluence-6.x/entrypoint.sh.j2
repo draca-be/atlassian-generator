@@ -30,7 +30,7 @@ if [ -n "${CONF_PROXY_SCHEME}" ]; then
     sed -i "s/port=\"8090\"/port=\"8090\" scheme=\"${CONF_PROXY_SCHEME}\"/g" ${SERVERXML}
 fi
 if [ -n "${CONF_CONTEXT_PATH}" ]; then
-    sed -i "s:path=\"\":path=\"${CONF_CONTEXT_PATH}\"/g" ${SERVERXML}
+    sed -i "s:path=\"\":path=\"${CONF_CONTEXT_PATH}\":g" ${SERVERXML}
 fi
 
 if [ -n "${DISABLE_NOTIFICATIONS}" ]; then

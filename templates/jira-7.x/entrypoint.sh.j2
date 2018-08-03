@@ -22,7 +22,7 @@ if [ -n "${JIRA_PROXY_SCHEME}" ]; then
     sed -i "s/port=\"8080\"/port=\"8080\" scheme=\"${JIRA_PROXY_SCHEME}\"/g" ${SERVERXML}
 fi
 if [ -n "${JIRA_CONTEXT_PATH}" ]; then
-    sed -i "s:path=\"\":path=\"${JIRA_CONTEXT_PATH}\"/g" ${SERVERXML}
+    sed -i "s:path=\"\":path=\"${JIRA_CONTEXT_PATH}\":g" ${SERVERXML}
 fi
 
 if [ -n "${DISABLE_NOTIFICATIONS}" ]; then
