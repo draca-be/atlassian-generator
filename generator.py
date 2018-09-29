@@ -228,14 +228,13 @@ def processapp(application):
                     latestminor[minor] = itemversion
 
     # Tag latest major and minor versions
-    tagversion(repo, "master", latestversion)
-
     for major, majorversion in latestmajor.items():
         tagversion(repo, major, majorversion)
 
     for minor, minorversion in latestminor.items():
         tagversion(repo, minor, minorversion)
 
+    tagversion(repo, "master", latestversion)
 
 if __name__ == '__main__':
     with open(args.config, 'r') as stream:
