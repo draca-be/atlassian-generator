@@ -1,4 +1,4 @@
-FROM anapsix/alpine-java:8u162b12_jdk
+FROM anapsix/alpine-java:8u181b13_jdk
 
 MAINTAINER draca <info@draca.be>
 
