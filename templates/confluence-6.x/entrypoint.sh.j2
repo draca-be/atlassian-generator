@@ -27,6 +27,15 @@ if [ -n "${CONTAINER_TZ}" ] && [ -f ${TZ_FILE} ]; then
     echo "${CONTAINER_TZ}" > /etc/timezone
 fi
 
+# Import certificates if any available
+find ${CONF_CERTS} -name *.crt -print0 | while IFS= read -r -d $'\0' line; do
+    name=$(basename $line)
+
+    # Make sure if one exists it is deleted first
+    ${JAVA_HOME}/bin/keytool -delete -storepass changeit -noprompt -alias "${name}" -keystore ${JAVA_HOME}/jre/lib/security/cacerts 2>&1 >/dev/null
+    ${JAVA_HOME}/bin/keytool -import -storepass changeit -noprompt -alias "${name}" -keystore ${JAVA_HOME}/jre/lib/security/cacerts -file "${line}"
+done
+
 
 if [ -n "${CONF_PROXY_NAME}" ]; then
     sed -i "s/port=\"8090\"/port=\"8090\" proxyName=\"${CONF_PROXY_NAME}\"/g" ${SERVERXML}

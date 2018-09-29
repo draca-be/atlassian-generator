@@ -61,6 +61,16 @@ If you need to pass additional args you can set the CONF_ARGS variable.
 
 You can set the CONTAINER_TZ variable to set the default timezone in your container. Confluence inherits this if it is configured to use the system default.
 
+# Self-signed certificates
+
+The bane of every Atlassian Expert their existence! But fear no longer as this image can automatically import the certificates into the key database. It searches for files ending with .crt in /opt/atlassian/jira/certs so just mount a volume and Bob's your uncle.
+
+If you don't know how to get the certificates here's a simple one-liner fetching the certificate from Google, replace the domain with the one you want to import from.
+
+```
+openssl s_client -connect google.com:443 < /dev/null | sed -ne '/-BEGIN CERTIFICATE-/,/-END CERTIFICATE-/p' > google-public.crt
+```
+
 # Volumes
 
 If you want to mount a volume or a directory to store your data outside of the container you should mount it over /opt/atlassian/confluence/data

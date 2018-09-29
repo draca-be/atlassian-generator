@@ -65,6 +65,16 @@ You can set the CONTAINER_TZ variable to set the default timezone in your contai
 
 This image disables the Tomcat access logs by default as they can grow quite large for popular instances and quickly fill up the container. Should you have need for them you can enable them again by setting KEEP_ACCESS_LOGS to TRUE. You probably also want to mount a volume to /opt/atlassian/jira/install/logs.
 
+# Self-signed certificates
+
+The bane of every Atlassian Expert their existence! But fear no longer as this image can automatically import the certificates into the key database. It searches for files ending with .crt in /opt/atlassian/jira/certs so just mount a volume and Bob's your uncle.
+
+If you don't know how to get the certificates here's a simple one-liner fetching the certificate from Google, replace the domain with the one you want to import from.
+
+```
+openssl s_client -connect google.com:443 < /dev/null | sed -ne '/-BEGIN CERTIFICATE-/,/-END CERTIFICATE-/p' > google-public.crt
+```
+
 # Volumes
 
 If you want to mount a volume or a directory to store your data outside of the container you should mount it over /opt/atlassian/jira/data
