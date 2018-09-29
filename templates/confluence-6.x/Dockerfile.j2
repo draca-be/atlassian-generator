@@ -18,7 +18,7 @@ EXPOSE 8090
 
 WORKDIR $CONF_HOME
 
-RUN apk add --no-cache curl tar shadow\
+RUN apk add --no-cache curl tar shadow tzdata\
     && groupadd -r ${RUN_GROUP} \
     && useradd -r -g ${RUN_GROUP} ${RUN_USER} \
     && mkdir -p "${CONF_HOME}" "${CONF_INSTALL}" \

@@ -57,6 +57,10 @@ Change the default JVM memory size
 
 If you need to pass additional args you can set the JIRA_ARGS variable.
 
+## Timezone
+
+You can set the CONTAINER_TZ variable to set the default timezone in your container. Jira inherits this if it is configured to use the system default.
+
 # Volumes
 
 If you want to mount a volume or a directory to store your data outside of the container you should mount it over /opt/atlassian/jira/data

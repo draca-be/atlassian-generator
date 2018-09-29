@@ -19,6 +19,14 @@ else
     cp ${SETENV} ${SETENV}.orig
 fi
 
+# Set the timezone if needed
+TZ_FILE="/usr/share/zoneinfo/${CONTAINER_TZ}"
+
+if [ -n "${CONTAINER_TZ}" ] && [ -f ${TZ_FILE} ]; then
+    cp /${TZ_FILE} /etc/localtime
+    echo "${CONTAINER_TZ}" > /etc/timezone
+fi
+
 
 if [ -n "${CONF_PROXY_NAME}" ]; then
     sed -i "s/port=\"8090\"/port=\"8090\" proxyName=\"${CONF_PROXY_NAME}\"/g" ${SERVERXML}

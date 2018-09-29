@@ -11,6 +11,14 @@ else
     cp ${SERVERXML} ${SERVERXML}.orig
 fi
 
+# Set the timezone if needed
+TZ_FILE="/usr/share/zoneinfo/${CONTAINER_TZ}"
+
+if [ -n "${CONTAINER_TZ}" ] && [ -f ${TZ_FILE} ]; then
+    cp /${TZ_FILE} /etc/localtime
+    echo "${CONTAINER_TZ}" > /etc/timezone
+fi
+
 
 if [ -n "${JIRA_PROXY_NAME}" ]; then
     sed -i "s/port=\"8080\"/port=\"8080\" proxyName=\"${JIRA_PROXY_NAME}\"/g" ${SERVERXML}
