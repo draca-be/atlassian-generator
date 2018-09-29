@@ -61,6 +61,10 @@ If you need to pass additional args you can set the JIRA_ARGS variable.
 
 You can set the CONTAINER_TZ variable to set the default timezone in your container. Jira inherits this if it is configured to use the system default.
 
+## Access logs
+
+This image disables the Tomcat access logs by default as they can grow quite large for popular instances and quickly fill up the container. Should you have need for them you can enable them again by setting KEEP_ACCESS_LOGS to TRUE. You probably also want to mount a volume to /opt/atlassian/jira/install/logs.
+
 # Volumes
 
 If you want to mount a volume or a directory to store your data outside of the container you should mount it over /opt/atlassian/jira/data
