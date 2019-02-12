@@ -182,7 +182,7 @@ def processapp(application):
         return
 
     # Extract directory name from repository
-    m = re.match(r"[^/]*/(.*).git", application['repository'])
+    m = re.match(r".*/([^/]*).git", application['repository'])
     path = os.path.join(args.workdir, m.group(1))
 
     if not os.path.exists(path):
