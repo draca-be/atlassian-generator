@@ -30,6 +30,9 @@ parser.add_argument("--commitname",
 parser.add_argument("--commitemail",
                     help="Email of the commit author (default: mathy@draca.be)",
                     default="mathy@draca.be")
+parser.add_argument("--dontpush",
+                    help="Don't push to the remote repository",
+                    action='store_true')
 parser.add_argument("templates", metavar="template", nargs="?",
                     help="Specify the template to parse (default: all)")
 
@@ -133,8 +136,11 @@ def processversion(repo, application, versioninfo):
         repo.index.write()
         tree = repo.index.write_tree()
         repo.create_commit(branch, author, author, "Update", tree, [repo.head.target])
-        logging.info("     Pushing branch")
-        repo.remotes['origin'].push(['+' + branch], callbacks=gitcallbacks)
+        if not args.dontpush:
+            logging.info("     Pushing branch")
+            repo.remotes['origin'].push(['+' + branch], callbacks=gitcallbacks)
+        else:
+            logging.info("     Push disabled")
 
         break
 
@@ -160,8 +166,11 @@ def tagversion(repo, name, target):
 
         # Only push if the remote reference is not the same as the local
         if remoteref == None or remoteref.resolve().target != branchref.resolve().target:
-            logging.info("Pushing branch")
-            repo.remotes['origin'].push(['+' + branch], callbacks=gitcallbacks)
+            if not args.dontpush:
+                logging.info("Pushing branch")
+                repo.remotes['origin'].push(['+' + branch], callbacks=gitcallbacks)
+            else:
+                logging.info("Push disabled")
 
 
 def processapp(application):
@@ -221,14 +230,13 @@ def processapp(application):
                     latestminor[minor] = itemversion
 
     # Tag latest major and minor versions
-    tagversion(repo, "master", latestversion)
-
     for major, majorversion in latestmajor.items():
         tagversion(repo, major, majorversion)
 
     for minor, minorversion in latestminor.items():
         tagversion(repo, minor, minorversion)
 
+    tagversion(repo, "master", latestversion)
 
 if __name__ == '__main__':
     with open(args.config, 'r') as stream:

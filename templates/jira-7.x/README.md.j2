@@ -33,6 +33,8 @@ By default the application runs as a non-root user. You can influence which user
 * RUN_USER
 * RUN_GROUP
 
+Note that if you change the username, Java requires that the HOME directory for that user exists, this image automatically assigns the data folder as home directory.
+
 ## Run behind a proxy
 
 If you are running the application behind a reverse proxy you need to set these variables so that it knows where to redirect requests to.
@@ -56,6 +58,24 @@ Change the default JVM memory size
 ## Additional JVM args
 
 If you need to pass additional args you can set the JIRA_ARGS variable.
+
+## Timezone
+
+You can set the CONTAINER_TZ variable to set the default timezone in your container. Jira inherits this if it is configured to use the system default.
+
+## Access logs
+
+This image disables the Tomcat access logs by default as they can grow quite large for popular instances and quickly fill up the container. Should you have need for them you can enable them again by setting KEEP_ACCESS_LOGS to TRUE. You probably also want to mount a volume to /opt/atlassian/jira/install/logs.
+
+# Self-signed certificates
+
+The bane of every Atlassian Expert their existence! But fear no longer as this image can automatically import the certificates into the key database. It searches for files ending with .crt in /opt/atlassian/jira/certs so just mount a volume and Bob's your uncle.
+
+If you don't know how to get the certificates here's a simple one-liner fetching the certificate from Google, replace the domain with the one you want to import from.
+
+```
+openssl s_client -connect google.com:443 < /dev/null | sed -ne '/-BEGIN CERTIFICATE-/,/-END CERTIFICATE-/p' > google-public.crt
+```
 
 # Volumes
 

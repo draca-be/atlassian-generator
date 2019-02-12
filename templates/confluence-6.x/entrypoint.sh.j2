@@ -19,6 +19,23 @@ else
     cp ${SETENV} ${SETENV}.orig
 fi
 
+# Set the timezone if needed
+TZ_FILE="/usr/share/zoneinfo/${CONTAINER_TZ}"
+
+if [ -n "${CONTAINER_TZ}" ] && [ -f ${TZ_FILE} ]; then
+    cp /${TZ_FILE} /etc/localtime
+    echo "${CONTAINER_TZ}" > /etc/timezone
+fi
+
+# Import certificates if any available
+find ${CONF_CERTS} -name *.crt -print0 | while IFS= read -r -d $'\0' line; do
+    name=$(basename $line)
+
+    # Make sure if one exists it is deleted first
+    ${JAVA_HOME}/bin/keytool -delete -storepass changeit -noprompt -alias "${name}" -keystore ${JAVA_HOME}/jre/lib/security/cacerts 2>&1 >/dev/null
+    ${JAVA_HOME}/bin/keytool -import -storepass changeit -noprompt -alias "${name}" -keystore ${JAVA_HOME}/jre/lib/security/cacerts -file "${line}"
+done
+
 
 if [ -n "${CONF_PROXY_NAME}" ]; then
     sed -i "s/port=\"8090\"/port=\"8090\" proxyName=\"${CONF_PROXY_NAME}\"/g" ${SERVERXML}
@@ -30,7 +47,7 @@ if [ -n "${CONF_PROXY_SCHEME}" ]; then
     sed -i "s/port=\"8090\"/port=\"8090\" scheme=\"${CONF_PROXY_SCHEME}\"/g" ${SERVERXML}
 fi
 if [ -n "${CONF_CONTEXT_PATH}" ]; then
-    sed -i "s:path=\"\":path=\"${CONF_CONTEXT_PATH}\"/g" ${SERVERXML}
+    sed -i "s:path=\"\":path=\"${CONF_CONTEXT_PATH}\":g" ${SERVERXML}
 fi
 
 if [ -n "${DISABLE_NOTIFICATIONS}" ]; then
