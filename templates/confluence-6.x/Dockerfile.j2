@@ -21,7 +21,7 @@ WORKDIR $CONF_HOME
 
 RUN apk add --no-cache curl tar shadow tzdata\
     && groupadd -r ${RUN_GROUP} \
-    && useradd -r -g ${RUN_GROUP} ${RUN_USER} \
+    && useradd -d "${CONF_HOME}" -r -g ${RUN_GROUP} ${RUN_USER} \
     && mkdir -p "${CONF_HOME}" "${CONF_INSTALL}" "${CONF_CERTS}" \
     && curl -Ls ${CONF_DOWNLOAD} | tar -xz --directory "${CONF_INSTALL}" --strip-components=1 --no-same-owner \
     && echo -e "\nconfluence.home=${CONF_HOME}" >> "${CONF_INSTALL}/confluence/WEB-INF/classes/confluence-init.properties" \

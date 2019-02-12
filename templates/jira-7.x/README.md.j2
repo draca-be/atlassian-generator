@@ -33,6 +33,8 @@ By default the application runs as a non-root user. You can influence which user
 * RUN_USER
 * RUN_GROUP
 
+Note that if you change the username, Java requires that the HOME directory for that user exists, this image automatically assigns the data folder as home directory.
+
 ## Run behind a proxy
 
 If you are running the application behind a reverse proxy you need to set these variables so that it knows where to redirect requests to.
