@@ -249,9 +249,10 @@ if __name__ == '__main__':
         for item in data:
             if item['name'] in repos:
                 item['repository'] = repos[item['name']]
-            else:
-                logging.exception("No repository configured for {}".format(item['name']))
 
-            if not args.templates or item['template'] in args.templates:
-                processapp(item)
+                if not args.templates or item['template'] in args.templates:
+                    processapp(item)
+
+            else:
+                logging.info("No repository configured for {}".format(item['name']))
 
