@@ -43,6 +43,9 @@ Following variables are available in the template:
 * the script force pushes all the branches
 * all branches are created as orphan branches
 
+You need to create a repositories.yml that specifies where the repositories need to be pushed to. There is a sample
+provided in repositories-sample.yml.
+
 ## Thanks
 
 While originally created for own usage this tool is now also used by [iDalko](https://www.idalko.com) who

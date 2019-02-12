@@ -1,0 +1,6 @@
+# This configuration matches versions of the applications to templates
+
+Jira Core (version 7.x): git@github.com:draca-be/atlassian-jira-core.git
+Jira Software (version 7.x): git@github.com:draca-be/atlassian-jira-software.git
+Jira Service Desk (version 3.x): git@github.com:draca-be/atlassian-jira-servicedesk.git
+Confluence: git@github.com:draca-be/atlassian-confluence.git
