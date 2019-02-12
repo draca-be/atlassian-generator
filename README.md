@@ -43,6 +43,12 @@ Following variables are available in the template:
 * the script force pushes all the branches
 * all branches are created as orphan branches
 
+## Thanks
+
+While originally created for own usage this tool is now also used by [iDalko](https://www.idalko.com) who
+allow me time to work on it. This combined with leveraging their knowledge results in a higher quality of 
+Dockerfiles and images.
+
 ## Disclaimer
 
 Use this script at your own risk. If this destroys existing repositories, docker
