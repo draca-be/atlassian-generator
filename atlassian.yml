@@ -39,4 +39,7 @@
   - https://my.atlassian.com/download/feeds/archived/confluence.json
   minimumVersion: 6.0.0
   template: confluence-6.x
+  context:
+    title: Atlassian Confluence
+    appUrl: https://www.atlassian.com/software/confluence
 
