@@ -13,6 +13,7 @@ from packaging import version
 
 parser = argparse.ArgumentParser(description="Generate Atlassian based Dockerfiles")
 parser.add_argument("--config", help="a YaML file with configuration (default: atlassian.yml)", default="atlassian.yml")
+parser.add_argument("--repositories", help="a YaML file with repository configuration (default: repositories.yml)", default="repositories.yml")
 parser.add_argument("--workdir",
                     help="Location where the script should operate (default: work subdirectory)",
                     default=os.path.join(os.path.dirname(__file__), 'work'))
@@ -239,10 +240,18 @@ def processapp(application):
     tagversion(repo, "master", latestversion)
 
 if __name__ == '__main__':
+    with open(args.repositories, 'r') as stream:
+        repos = yaml.load(stream)
+
     with open(args.config, 'r') as stream:
         data = yaml.load(stream)
 
         for item in data:
+            if item['name'] in repos:
+                item['repository'] = repos[item['name']]
+            else:
+                logging.exception("No repository configured for {}".format(item['name']))
+
             if not args.templates or item['template'] in args.templates:
                 processapp(item)
 
