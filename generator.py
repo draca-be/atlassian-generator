@@ -8,6 +8,7 @@ import urllib.request
 import json
 import pygit2
 import jinja2
+import subprocess
 
 from packaging import version
 
@@ -20,11 +21,10 @@ parser.add_argument("--workdir",
 parser.add_argument("--templatedir",
                     help="Location that contains all the templates (default: templates subdirectory)",
                     default=os.path.join(os.path.dirname(__file__), 'templates'))
-parser.add_argument("--sshagent",
-                    help="Use the SSH-agent for authentication. "
-                         "When False you need to provide the password to your private key. (default: True)",
-                    default=True)
-parser.add_argument("--sshpassword", help="Provide the password for your private key if not using the ssh-agent")
+parser.add_argument("--nosshagent",
+                    help="Don't use SSH agent based authentication.",
+                    action='store_true')
+parser.add_argument("--sshpassword", help="Provide the password for your private key. Implies --nosshagent")
 parser.add_argument("--commitname",
                     help="Name of the commit author (default: draca-be/atlassian-generator)",
                     default="draca-be/atlassian-generator")
@@ -45,10 +45,24 @@ logging.basicConfig(level=logging.INFO)
 feeds = {}
 
 # We only support key-based authentication
-if args.sshagent:
-    gitkeypair = pygit2.Keypair("git", None, None, "")
+if args.sshpassword:
+    gitkeypair = pygit2.Keypair("git", os.path.expanduser("~/.ssh/id_rsa.pub"), os.path.expanduser("~/.ssh/id_rsa"), args.sshpassword)
+
+elif not args.nosshagent:
+    if 'SSH_AUTH_SOCK' not in os.environ:
+        logging.error("SSH agent selected but no SSH agent is running")
+        exit(1)
+
+    # Check if someone is actually authenticated
+    if subprocess.run(['ssh-add', '-l']).returncode == 0:
+        gitkeypair = pygit2.Keypair("git", None, None, "")
+    else:
+        logging.error("SSH agent selected but no active sessions")
+        exit(1)
+
 else:
-    gitkeypair = pygit2.Keypair("git", "id_rsa.pub", "id_rsa", args.sshpassword)
+    logging.info("No SSH agent selected but no password provided, trying passwordless authentication.")
+    gitkeypair = pygit2.Keypair("git", os.path.expanduser("~/.ssh/id_rsa.pub"), os.path.expanduser("~/.ssh/id_rsa"), "")
 
 gitcallbacks = pygit2.RemoteCallbacks(credentials=gitkeypair)
 
