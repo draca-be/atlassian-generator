@@ -20,7 +20,9 @@ RUN apk add --no-cache curl tar shadow tzdata \
     && mkdir -p "${JIRA_HOME}" "${JIRA_INSTALL}" "${JIRA_CERTS}" \
     && curl -Ls ${JIRA_DOWNLOAD} | tar -xz --directory "${JIRA_INSTALL}" --strip-components=1 --no-same-owner \
     && echo -e "\njira.home=${JIRA_HOME}" >> "${JIRA_INSTALL}/atlassian-jira/WEB-INF/classes/jira-application.properties" \
-    && apk del curl tar shadow
+    && apk del curl tar shadow \
+    && chown -R ${RUN_USER}:${RUN_GROUP} "${JIRA_HOME}" "${JIRA_INSTALL}" "${JIRA_CERTS}"
+
 
 COPY "entrypoint.sh" "/"
 ENTRYPOINT ["/entrypoint.sh"]
