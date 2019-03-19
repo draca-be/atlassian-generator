@@ -6,7 +6,9 @@
 
 This image enables you to run [{{ title }}]({{ appUrl }}).
 
-It is based on [alpine-java](https://hub.docker.com/r/anapsix/alpine-java/) to provide an as small as possible image.
+It is based on Alpine Linux to provide an as small as possible image.
+* Versions prior to 6.12 use [alpine-java](https://hub.docker.com/r/anapsix/alpine-java/) to provide an Oracle JDK.
+* Starting from 6.13+ [adoptopenjdk/openjdk8](https://hub.docker.com/r/adoptopenjdk/openjdk8/) is used since Atlassian supports OpenJDK from this version.
 
 # Notice
 

@@ -1,5 +1,3 @@
-FROM anapsix/alpine-java:8u201b09_jdk
-
 MAINTAINER draca <info@draca.be>
 
 ARG CONF_VERSION={{ version }}

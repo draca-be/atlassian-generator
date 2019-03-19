@@ -33,12 +33,22 @@
     appUrl: https://www.atlassian.com/software/jira/service-desk
     type: servicedesk
     demoMinor: 3.8
-- name: Confluence
+- name: Confluence (version 6.0 - 6.12)
   feeds:
   - https://my.atlassian.com/download/feeds/current/confluence.json
   - https://my.atlassian.com/download/feeds/archived/confluence.json
   minimumVersion: 6.0.0
-  template: confluence-6.x
+  maximumVersion: 6.12.999
+  template: confluence-6.x-oracle
+  context:
+    title: Atlassian Confluence
+    appUrl: https://www.atlassian.com/software/confluence
+- name: Confluence (version 6.13+) AdoptOpenJDK
+  feeds:
+  - https://my.atlassian.com/download/feeds/current/confluence.json
+  - https://my.atlassian.com/download/feeds/archived/confluence.json
+  minimumVersion: 6.13.0
+  template: confluence-6.x-openjdk
   context:
     title: Atlassian Confluence
     appUrl: https://www.atlassian.com/software/confluence
