@@ -111,7 +111,7 @@ def processversion(repo, application, versioninfo):
     templatedir = os.path.join(args.templatedir, application['template'])
 
     environment = jinja2.Environment(
-        loader=jinja2.FileSystemLoader(templatedir)
+        loader=jinja2.FileSystemLoader(args.templatedir)
     )
 
     # Create the context from template and add version info
@@ -134,7 +134,7 @@ def processversion(repo, application, versioninfo):
                 os.makedirs(outputpath, exist_ok=True)
 
                 # Process the template
-                environment.get_template(os.path.join(subpath, template)).stream(context).dump(os.path.join(outputpath, outputfile))
+                environment.get_template(os.path.join(application['template'], subpath, template)).stream(context).dump(os.path.join(outputpath, outputfile))
 
                 # Make sure file permissions match
                 mode = os.lstat(os.path.join(root, template)).st_mode
