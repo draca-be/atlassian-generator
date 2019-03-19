@@ -1,38 +1,79 @@
 # This configuration matches versions of the applications to templates
 
-- name: Jira Core (version 7.x)
+# Jira Oracle
+- name: Jira Core (version 7.0 - 7.12)
   feeds:
   - https://my.atlassian.com/download/feeds/current/jira-core.json
   - https://my.atlassian.com/download/feeds/archived/jira-core.json
   minimumVersion: 7.0.0
-  template: jira-7.x
+  maximumVersion: 7.12.999
+  template: jira-7.x-oracle
   context:
     title: Atlassian JIRA Core
     appUrl: https://www.atlassian.com/software/jira/core
     type: core
-    demoMinor: 7.8
-- name: Jira Software (version 7.x)
+    demoMinor: 7.12
+- name: Jira Software (version 7.0 - 7.12)
   feeds:
   - https://my.atlassian.com/download/feeds/current/jira-software.json
   - https://my.atlassian.com/download/feeds/archived/jira-software.json
   minimumVersion: 7.0.0
-  template: jira-7.x
+  maximumVersion: 7.12.999
+  template: jira-7.x-oracle
   context:
     title: Atlassian JIRA Software
     appUrl: https://www.atlassian.com/software/jira/software
     type: software
-    demoMinor: 7.8
-- name: Jira Service Desk (version 3.x)
+    demoMinor: 7.12
+- name: Jira Service Desk (version 3.0 - 3.15)
   feeds:
   - https://my.atlassian.com/download/feeds/current/jira-servicedesk.json
   - https://my.atlassian.com/download/feeds/archived/jira-servicedesk.json
   minimumVersion: 3.0.0
-  template: jira-7.x
+  maximumVersion: 3.15.999
+  template: jira-7.x-oracle
   context:
     title: Atlassian JIRA Service Desk
     appUrl: https://www.atlassian.com/software/jira/service-desk
     type: servicedesk
-    demoMinor: 3.8
+    demoMinor: 3.15
+
+# Jira AdoptOpenJDK
+- name: Jira Core (version 7.13+) AdoptOpenJDK
+  feeds:
+  - https://my.atlassian.com/download/feeds/current/jira-core.json
+  - https://my.atlassian.com/download/feeds/archived/jira-core.json
+  minimumVersion: 7.13.0
+  template: jira-7.x-openjdk
+  context:
+    title: Atlassian JIRA Core
+    appUrl: https://www.atlassian.com/software/jira/core
+    type: core
+    demoMinor: 8.0
+- name: Jira Software (version 7.13+) AdoptOpenJDK
+  feeds:
+  - https://my.atlassian.com/download/feeds/current/jira-software.json
+  - https://my.atlassian.com/download/feeds/archived/jira-software.json
+  minimumVersion: 7.13.0
+  template: jira-7.x-openjdk
+  context:
+    title: Atlassian JIRA Software
+    appUrl: https://www.atlassian.com/software/jira/software
+    type: software
+    demoMinor: 8.0
+- name: Jira Service Desk (version 3.16+) AdoptOpenJDK
+  feeds:
+  - https://my.atlassian.com/download/feeds/current/jira-servicedesk.json
+  - https://my.atlassian.com/download/feeds/archived/jira-servicedesk.json
+  minimumVersion: 3.16.0
+  template: jira-7.x-openjdk
+  context:
+    title: Atlassian JIRA Service Desk
+    appUrl: https://www.atlassian.com/software/jira/service-desk
+    type: servicedesk
+    demoMinor: 4.0
+
+# Confluence Oracle
 - name: Confluence (version 6.0 - 6.12)
   feeds:
   - https://my.atlassian.com/download/feeds/current/confluence.json
@@ -43,6 +84,8 @@
   context:
     title: Atlassian Confluence
     appUrl: https://www.atlassian.com/software/confluence
+
+# Confluence AdoptOpenJDK
 - name: Confluence (version 6.13+) AdoptOpenJDK
   feeds:
   - https://my.atlassian.com/download/feeds/current/confluence.json
