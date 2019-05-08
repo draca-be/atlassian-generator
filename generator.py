@@ -70,11 +70,11 @@ gitcallbacks = pygit2.RemoteCallbacks(credentials=gitkeypair)
 author = pygit2.Signature(args.commitname, args.commitemail)
 
 
-def processversion(repo, application, versioninfo):
-    logging.info("  -> {}".format(versioninfo['version']))
+def processversion(repo, application, versioninfo, suffix):
+    logging.info("  -> {}{}".format(versioninfo['version'], suffix))
 
-    branch = "refs/heads/{}".format(versioninfo['version'])
-    remotebranch = "refs/remotes/origin/{}".format(versioninfo['version'])
+    branch = "refs/heads/{}{}".format(versioninfo['version'], suffix)
+    remotebranch = "refs/remotes/origin/{}{}".format(versioninfo['version'], suffix)
 
     # Make sure we have a branch to work in
     if not repo.references.get(branch):
@@ -86,7 +86,7 @@ def processversion(repo, application, versioninfo):
             repo.create_commit(branch,
                                author,
                                author,
-                               "New branch for {} {}".format(application['name'], versioninfo['version']),
+                               "New branch for {} {}{}".format(application['name'], versioninfo['version'], suffix),
                                tree,
                                []
                                )
@@ -188,6 +188,55 @@ def tagversion(repo, name, target):
                 logging.info("Push disabled")
 
 
+def processconfiguration(repo, configuration):
+    minimumversion = version.parse(configuration.get('minimumVersion', '0.0.1'))
+    maximumversion = version.parse(configuration.get('maximumVersion', '999.999.999'))
+    latestversion, latestmajor, latestminor = minimumversion, {}, {}
+    suffix = configuration.get('suffix', '')
+
+    for feed in configuration['feeds']:
+        # If we don't have a cached version, fetch the .json
+        if feed not in feeds:
+            with urllib.request.urlopen(feed) as url:
+                feeddata = url.read().decode()
+                feeds[feed] = json.loads(feeddata[10:-1])
+
+        # Use the cached version
+        feeddata = feeds[feed]
+
+        # Iterate all the versions
+        for versioninfo in feeddata:
+            itemversion = version.parse(versioninfo['version'])
+
+            # Only pick the tarballs and filter out versions
+            if re.match(r".*TAR\.GZ Archive.*", versioninfo['description']) \
+                    and versioninfo['type'] == 'Binary' \
+                    and maximumversion >= itemversion >= minimumversion:
+                # Process the app version
+                processversion(repo, configuration, versioninfo, suffix)
+
+                # Hocus pocus to save latest major and minor versions
+                if itemversion > latestversion:
+                    latestversion = itemversion
+
+                major = "{}".format(itemversion.release[0])
+                if itemversion >= latestmajor.get(major, minimumversion):
+                    latestmajor[major] = itemversion
+
+                minor = "{}.{}".format(itemversion.release[0],  itemversion.release[1])
+                if itemversion >= latestminor.get(minor, minimumversion):
+                    latestminor[minor] = itemversion
+
+    # Tag latest major and minor versions
+    for major, majorversion in latestmajor.items():
+        tagversion(repo, major + suffix, str(majorversion) + suffix)
+
+    for minor, minorversion in latestminor.items():
+        tagversion(repo, minor + suffix, str(minorversion) + suffix)
+
+    return latestversion
+
+
 def processapp(application):
     logging.info("Processing {}".format(application['name']))
 
@@ -207,51 +256,22 @@ def processapp(application):
 
     repo = pygit2.Repository(path)
 
-    minimumversion = version.parse(application.get('minimumVersion', '0.0.1'))
-    maximumversion = version.parse(application.get('maximumVersion', '999.999.999'))
-    latestversion, latestmajor, latestminor = minimumversion, {}, {}
+    latestversions = {}
 
-    for feed in application['feeds']:
-        # If we don't have a cached version, fetch the .json
-        if feed not in feeds:
-            with urllib.request.urlopen(feed) as url:
-                feeddata = url.read().decode()
-                feeds[feed] = json.loads(feeddata[10:-1])
+    for configuration in application['configurations']:
+        suffix = configuration.get('suffix', '')
 
-        # Use the cached version
-        feeddata = feeds[feed]
+        if suffix not in latestversions:
+            latestversions[suffix] = version.parse('0.0.1')
 
-        # Iterate all the versions
-        for versioninfo in feeddata:
-            itemversion = version.parse(versioninfo['version'])
+        latest = processconfiguration(repo, configuration)
 
-            # Only pick the tarballs and filter out versions
-            if re.match(r".*TAR\.GZ Archive.*", versioninfo['description']) \
-                    and versioninfo['type'] == 'Binary' \
-                    and maximumversion >= itemversion >= minimumversion:
-                # Process the app version
-                processversion(repo, application, versioninfo)
+        if latest > latestversions[suffix]:
+            latestversions[suffix] = latest
 
-                # Hocus pocus to save latest major and minor versions
-                if itemversion > latestversion:
-                    latestversion = itemversion
+    for suffix, latest in latestversions.items():
+        tagversion(repo, "latest" + suffix, str(latest) + suffix)
 
-                major = "{}".format(itemversion.release[0])
-                if itemversion >= latestmajor.get(major, minimumversion):
-                    latestmajor[major] = itemversion
-
-                minor = "{}.{}".format(itemversion.release[0],  itemversion.release[1])
-                if itemversion >= latestminor.get(minor, minimumversion):
-                    latestminor[minor] = itemversion
-
-    # Tag latest major and minor versions
-    for major, majorversion in latestmajor.items():
-        tagversion(repo, major, majorversion)
-
-    for minor, minorversion in latestminor.items():
-        tagversion(repo, minor, minorversion)
-
-    tagversion(repo, "master", latestversion)
 
 if __name__ == '__main__':
     with open(args.repositories, 'r') as stream:
