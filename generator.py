@@ -227,14 +227,7 @@ def processconfiguration(repo, configuration):
                 if itemversion >= latestminor.get(minor, minimumversion):
                     latestminor[minor] = itemversion
 
-    # Tag latest major and minor versions
-    for major, majorversion in latestmajor.items():
-        tagversion(repo, major + suffix, str(majorversion) + suffix)
-
-    for minor, minorversion in latestminor.items():
-        tagversion(repo, minor + suffix, str(minorversion) + suffix)
-
-    return latestversion
+    return (latestmajor, latestminor, latestversion)
 
 
 def processapp(application):
@@ -256,21 +249,38 @@ def processapp(application):
 
     repo = pygit2.Repository(path)
 
-    latestversions = {}
+    versions = {}
 
     for configuration in application['configurations']:
         suffix = configuration.get('suffix', '')
 
-        if suffix not in latestversions:
-            latestversions[suffix] = version.parse('0.0.1')
+        (latestmajor, latestminor, latestversion) = processconfiguration(repo, configuration)
 
-        latest = processconfiguration(repo, configuration)
+        # Make sure that across configurations the major, minor and latest tags are respected
+        if suffix not in versions:
+            versions[suffix] = [latestmajor, latestminor, latestversion]
 
-        if latest > latestversions[suffix]:
-            latestversions[suffix] = latest
+        else:
+            for major, majorversion in latestmajor.items():
+                if major not in versions[suffix][0] or majorversion > versions[suffix][0][major]:
+                    versions[suffix][0][major] = majorversion
 
-    for suffix, latest in latestversions.items():
-        tagversion(repo, "latest" + suffix, str(latest) + suffix)
+            for minor, minorversion in latestminor.items():
+                if minor not in versions[suffix][1] or minorversion > versions[suffix][1][minor]:
+                    versions[suffix][1][minor] = minorversion
+
+            if latestversion > versions[suffix][2]:
+                versions[suffix][2] = latestversion
+
+    # Tag latest major and minor versions
+    for suffix, (latestmajor, latestminor, latestversion) in versions.items():
+        for major, majorversion in latestmajor.items():
+            tagversion(repo, major + suffix, str(majorversion) + suffix)
+
+        for minor, minorversion in latestminor.items():
+            tagversion(repo, minor + suffix, str(minorversion) + suffix)
+
+        tagversion(repo, "latest" + suffix, str(latestversion) + suffix)
 
 
 if __name__ == '__main__':
